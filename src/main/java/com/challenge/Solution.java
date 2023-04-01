@@ -14,7 +14,7 @@ public class Solution {
         for (int i = 0; i < 1_000; i++) {
             String role = i % 2 == 0 ? "boss" : "developer";
             String salary = i + ".00";
-            String name = "Name" + new SecureRandom().nextInt(100) + i;
+            String name = "Name" + new SecureRandom().nextInt(100) + "_"+ i;
             employees.add(new Employee(name, salary, role));
         }
 
@@ -26,8 +26,8 @@ public class Solution {
         Duration timeElapsed = Duration.between(start, end);
         System.out.println("Time taken: " + timeElapsed.toMillis() + " milliseconds");
 
-        System.out.println("Boss: " + Database.getInstance().getBossSalary());
-        System.out.println("Developer: " + Database.getInstance().getDeveloperSalary());
+        System.out.println("Boss: " + Database.getInstance().getBossSalary()); //249500.00
+        System.out.println("Developer: " + Database.getInstance().getDeveloperSalary()); //250000.00
     }
 
     /**
@@ -106,12 +106,13 @@ public class Solution {
 
         private BigDecimal bossSalary = BigDecimal.ZERO;
         private BigDecimal developerSalary = BigDecimal.ZERO;
+        private final Object developerSumLock = new Object();
 
         public BigDecimal getBossSalary() {
             return bossSalary;
         }
 
-        public synchronized void increseBossSalary(BigDecimal bossSalary) {
+        public synchronized void increaseBossSalary(BigDecimal bossSalary) {
             delay();
             this.bossSalary = this.bossSalary.add(bossSalary);
         }
@@ -120,9 +121,11 @@ public class Solution {
             return developerSalary;
         }
 
-        public void increseDeveloperSalary(BigDecimal developerSalary) {
+        public void increaseDeveloperSalary(BigDecimal developerSalary) {
             delay();
-            this.developerSalary = this.developerSalary.add(developerSalary);
+            synchronized (developerSumLock) {
+                this.developerSalary = this.developerSalary.add(developerSalary);
+            }
         }
     }
 
@@ -130,25 +133,30 @@ public class Solution {
      * This method should save into database the sum of salary grouped by role.
      * Note: it should not take more than 3_000 milliseconds to execute 1_000 employees.
      *
-     * @param list
+     * @param employees List of employees.
      */
-    public static void saveIntoDatabaseSalariesSum(List<Employee> list) {
-        new HashSet<>(list)
+    public static void saveIntoDatabaseSalariesSum(List<Employee> employees) {
+        removeDuplicated(employees)
                 .parallelStream()
                 .forEach(employee -> {
                     switch (employee.getRole()) {
-                        case BOSS -> Database.getInstance().increseBossSalary(new BigDecimal(employee.getSalary()));
-                        case DEVELOPER -> Database.getInstance().increseDeveloperSalary(new BigDecimal(employee.getSalary()));
+                        case BOSS -> Database.getInstance().increaseBossSalary(new BigDecimal(employee.getSalary()));
+                        case DEVELOPER ->
+                                Database.getInstance().increaseDeveloperSalary(new BigDecimal(employee.getSalary()));
                         default ->
                                 throw new UnsupportedOperationException("Is not possible to calculate the salary from role: " + employee.getRole());
                     }
                 });
     }
 
+    private static HashSet<Employee> removeDuplicated(List<Employee> employees) {
+        return new HashSet<>(employees);
+    }
+
 
     private static void delay() {
         try {
-            Thread.sleep(3);
+            Thread.sleep(2);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

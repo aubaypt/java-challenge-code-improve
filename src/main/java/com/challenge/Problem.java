@@ -4,10 +4,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +17,7 @@ public class Problem {
         for (int i = 0; i < 1_000; i++) {
             String role = i % 2 == 0 ? "boss" : "developer";
             String salary = i + ".00";
-            String name = "Name" + new SecureRandom().nextInt(100) + i;
+            String name = "Name" + new SecureRandom().nextInt(100) + "_"+ i;
             employees.add(new Employee(name, salary, role));
         }
 
@@ -124,7 +121,7 @@ public class Problem {
 
     private static void delay() {
         try {
-            Thread.sleep(3);
+            Thread.sleep(2);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

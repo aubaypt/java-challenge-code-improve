@@ -98,7 +98,7 @@ public class Solution {
      * Single instance with boss and developer salary
      */
     static class Database {
-        private static final Database database = new Database();
+        private static final Database database = new Database(); //TODO Singleton Lazy loading
 
         private Database() {
         }
@@ -131,7 +131,7 @@ public class Solution {
 
     /**
      * This method should save into database the sum of salary grouped by role.
-     * Note: it should not take more than 1_000 milliseconds to execute 1_000 employees.
+     * Note: it should not take more than 3_000 milliseconds to execute 1_000 employees.
      *
      * @param list
      */

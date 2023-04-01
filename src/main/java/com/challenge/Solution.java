@@ -5,9 +5,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Solution {
 
@@ -90,7 +87,7 @@ public class Solution {
         public static Role getByDescriptionOrException(String description) {
             return Arrays.stream(values()).filter(r -> r.getDescription().equals(description))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Role must be boss or developer"));
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
         }
     }
 
